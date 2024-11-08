@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="108" time="81.717" timestamp="2024-11-08T00:50:00.551596+07:00" hostname="lam-ThinkPad-X1C-5th-W10DG"><testcase classname="tests.test_api" name="test_api_case[test_case0]" time="1.312" /><testcase classname="tests.test_api" name="test_api_case[test_case1]" time="0.727" /><testcase classname="tests.test_api" name="test_api_case[test_case2]" time="1.106" /><testcase classname="tests.test_api" name="test_api_case[test_case3]" time="0.879" /><testcase classname="tests.test_api" name="test_api_case[test_case4]" time="0.857" /><testcase classname="tests.test_api" name="test_api_case[test_case5]" time="1.040" /><testcase classname="tests.test_api" name="test_api_case[test_case6]" time="0.732" /><testcase classname="tests.test_api" name="test_api_case[test_case7]" time="0.794" /><testcase classname="tests.test_api" name="test_api_case[test_case8]" time="0.756" /><testcase classname="tests.test_api" name="test_api_case[test_case9]" time="0.702" /><testcase classname="tests.test_api" name="test_api_case[test_case10]" time="0.579"><failure message="Failed: Lỗi giải mã JSON trong Body: { &quot;app_image&quot;: &quot;https://www.pexels.com/photo/pouch-with-several-makeup-3373739/&quot;, &quot;display_order&quot;: 1, &quot;end_time&quot;: &quot;2024-12-31T23:59:59Z&quot;, &quot;is_sub_banner&quot;: true, &quot;link_to_screen&quot;: &quot;promo&quot;, &quot;name&quot;: &quot;Promo Banner&quot;, &quot;start_time&quot;: &quot;2024-01-01T00:00:00Z&quot;, &quot;trade_codes&quot;: [@PR2024], &quot;web_image&quot;: &quot;https://www.pexels.com/photo/beauty-products-on-pink-background-5881083/&quot; }">test_case = {'Authorization': 'Bearer your_token_here', 'Body': '{ "app_image": "https://www.pexels.com/photo/pouch-with-several-m..._codes': ['PR2024'], 'display_order': 1, 'is_sub_banner': True, 'status': False}}", 'Expected Status Code': '400', ...}
+
+    @pytest.mark.parametrize("test_case", load_test_cases("data/test_cases.csv"))
+    def test_api_case(test_case):
+        token = get_login_token()  # Lấy token từ API đăng nhập
+        assert token, "Không lấy được token, dừng quá trình kiểm thử."
+    
+        url = test_case['URL']
+    
+        # Parse headers và thêm Authorization từ cột `Authorization`
+        try:
+            headers = json.loads(test_case['Headers']) if test_case['Headers'] else {}
+            headers["Authorization"] = test_case['Authorization'].replace("Bearer your_token_here", f"{token}")
+        except json.JSONDecodeError:
+            pytest.fail(f"Lỗi giải mã JSON trong Headers: {test_case['Headers']}")
+    
+        # Parse body của yêu cầu
+        try:
+&gt;           payload = json.loads(test_case['Body']) if 'Body' in test_case and test_case['Body'] else {}
+
+tests/test_api.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+/usr/lib/python3.8/json/__init__.py:357: in loads
+    return _default_decoder.decode(s)
+/usr/lib/python3.8/json/decoder.py:337: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;json.decoder.JSONDecoder object at 0x720ee0809370&gt;
+s = '{ "app_image": "https://www.pexels.com/photo/pouch-with-several-makeup-3373739/", "display_order": 1, "end_time": "20...", "trade_codes": [@PR2024], "web_image": "https://www.pexels.com/photo/beauty-products-on-pink-background-5881083/" }'
+idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+&gt;           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 267 (char 266)
+
+/usr/lib/python3.8/json/decoder.py:355: JSONDecodeError
+
+During handling of the above exception, another exception occurred:
+
+test_case = {'Authorization': 'Bearer your_token_here', 'Body': '{ "app_image": "https://www.pexels.com/photo/pouch-with-several-m..._codes': ['PR2024'], 'display_order': 1, 'is_sub_banner': True, 'status': False}}", 'Expected Status Code': '400', ...}
+
+    @pytest.mark.parametrize("test_case", load_test_cases("data/test_cases.csv"))
+    def test_api_case(test_case):
+        token = get_login_token()  # Lấy token từ API đăng nhập
+        assert token, "Không lấy được token, dừng quá trình kiểm thử."
+    
+        url = test_case['URL']
+    
+        # Parse headers và thêm Authorization từ cột `Authorization`
+        try:
+            headers = json.loads(test_case['Headers']) if test_case['Headers'] else {}
+            headers["Authorization"] = test_case['Authorization'].replace("Bearer your_token_here", f"{token}")
+        except json.JSONDecodeError:
+            pytest.fail(f"Lỗi giải mã JSON trong Headers: {test_case['Headers']}")
+    
+        # Parse body của yêu cầu
+        try:
+            payload = json.loads(test_case['Body']) if 'Body' in test_case and test_case['Body'] else {}
+        except json.JSONDecodeError:
+&gt;           pytest.fail(f"Lỗi giải mã JSON trong Body: {test_case.get('Body', '')}")
+E           Failed: Lỗi giải mã JSON trong Body: { "app_image": "https://www.pexels.com/photo/pouch-with-several-makeup-3373739/", "display_order": 1, "end_time": "2024-12-31T23:59:59Z", "is_sub_banner": true, "link_to_screen": "promo", "name": "Promo Banner", "start_time": "2024-01-01T00:00:00Z", "trade_codes": [@PR2024], "web_image": "https://www.pexels.com/photo/beauty-products-on-pink-background-5881083/" }
+
+tests/test_api.py:56: Failed</failure></testcase><testcase classname="tests.test_api" name="test_api_case[test_case11]" time="0.858" /><testcase classname="tests.test_api" name="test_api_case[test_case12]" time="0.743" /><testcase classname="tests.test_api" name="test_api_case[test_case13]" time="0.725" /><testcase classname="tests.test_api" name="test_api_case[test_case14]" time="0.743" /><testcase classname="tests.test_api" name="test_api_case[test_case15]" time="1.178" /><testcase classname="tests.test_api" name="test_api_case[test_case16]" time="1.808" /><testcase classname="tests.test_api" name="test_api_case[test_case17]" time="0.972" /><testcase classname="tests.test_api" name="test_api_case[test_case18]" time="0.695" /><testcase classname="tests.test_api" name="test_api_case[test_case19]" time="0.629" /><testcase classname="tests.test_api" name="test_api_case[test_case20]" time="0.701" /><testcase classname="tests.test_api" name="test_api_case[test_case21]" time="0.607" /><testcase classname="tests.test_api" name="test_api_case[test_case22]" time="0.651" /><testcase classname="tests.test_api" name="test_api_case[test_case23]" time="0.801" /><testcase classname="tests.test_api" name="test_api_case[test_case24]" time="0.647" /><testcase classname="tests.test_api" name="test_api_case[test_case25]" time="0.666" /><testcase classname="tests.test_api" name="test_api_case[test_case26]" time="0.746" /><testcase classname="tests.test_api" name="test_api_case[test_case27]" time="2.931" /><testcase classname="tests.test_api" name="test_api_case[test_case28]" time="0.840" /><testcase classname="tests.test_api" name="test_api_case[test_case29]" time="0.723" /><testcase classname="tests.test_api" name="test_api_case[test_case30]" time="0.584" /><testcase classname="tests.test_api" name="test_api_case[test_case31]" time="0.719" /><testcase classname="tests.test_api" name="test_api_case[test_case32]" time="0.667" /><testcase classname="tests.test_api" name="test_api_case[test_case33]" time="0.688" /><testcase classname="tests.test_api" name="test_api_case[test_case34]" time="0.657" /><testcase classname="tests.test_api" name="test_api_case[test_case35]" time="0.759" /><testcase classname="tests.test_api" name="test_api_case[test_case36]" time="0.654" /><testcase classname="tests.test_api" name="test_api_case[test_case37]" time="0.572" /><testcase classname="tests.test_api" name="test_api_case[test_case38]" time="0.784" /><testcase classname="tests.test_api" name="test_api_case[test_case39]" time="0.724" /><testcase classname="tests.test_api" name="test_api_case[test_case40]" time="0.740" /><testcase classname="tests.test_api" name="test_api_case[test_case41]" time="0.662" /><testcase classname="tests.test_api" name="test_api_case[test_case42]" time="0.657" /><testcase classname="tests.test_api" name="test_api_case[test_case43]" time="0.773" /><testcase classname="tests.test_api" name="test_api_case[test_case44]" time="0.626" /><testcase classname="tests.test_api" name="test_api_case[test_case45]" time="0.693"><failure message="Failed: Lỗi giải mã JSON trong Body: {&quot;trade_codes&quot;: [“NY@2025&quot;]}">test_case = {'Authorization': 'Bearer your_token_here', 'Body': '{"trade_codes": [“NY@2025"]}', 'Expected Response': '{"detail": "Trade code does not exist"}', 'Expected Status Code': '400', ...}
+
+    @pytest.mark.parametrize("test_case", load_test_cases("data/test_cases.csv"))
+    def test_api_case(test_case):
+        token = get_login_token()  # Lấy token từ API đăng nhập
+        assert token, "Không lấy được token, dừng quá trình kiểm thử."
+    
+        url = test_case['URL']
+    
+        # Parse headers và thêm Authorization từ cột `Authorization`
+        try:
+            headers = json.loads(test_case['Headers']) if test_case['Headers'] else {}
+            headers["Authorization"] = test_case['Authorization'].replace("Bearer your_token_here", f"{token}")
+        except json.JSONDecodeError:
+            pytest.fail(f"Lỗi giải mã JSON trong Headers: {test_case['Headers']}")
+    
+        # Parse body của yêu cầu
+        try:
+&gt;           payload = json.loads(test_case['Body']) if 'Body' in test_case and test_case['Body'] else {}
+
+tests/test_api.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+/usr/lib/python3.8/json/__init__.py:357: in loads
+    return _default_decoder.decode(s)
+/usr/lib/python3.8/json/decoder.py:337: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;json.decoder.JSONDecoder object at 0x720ee0809370&gt;, s = '{"trade_codes": [“NY@2025"]}', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+&gt;           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 18 (char 17)
+
+/usr/lib/python3.8/json/decoder.py:355: JSONDecodeError
+
+During handling of the above exception, another exception occurred:
+
+test_case = {'Authorization': 'Bearer your_token_here', 'Body': '{"trade_codes": [“NY@2025"]}', 'Expected Response': '{"detail": "Trade code does not exist"}', 'Expected Status Code': '400', ...}
+
+    @pytest.mark.parametrize("test_case", load_test_cases("data/test_cases.csv"))
+    def test_api_case(test_case):
+        token = get_login_token()  # Lấy token từ API đăng nhập
+        assert token, "Không lấy được token, dừng quá trình kiểm thử."
+    
+        url = test_case['URL']
+    
+        # Parse headers và thêm Authorization từ cột `Authorization`
+        try:
+            headers = json.loads(test_case['Headers']) if test_case['Headers'] else {}
+            headers["Authorization"] = test_case['Authorization'].replace("Bearer your_token_here", f"{token}")
+        except json.JSONDecodeError:
+            pytest.fail(f"Lỗi giải mã JSON trong Headers: {test_case['Headers']}")
+    
+        # Parse body của yêu cầu
+        try:
+            payload = json.loads(test_case['Body']) if 'Body' in test_case and test_case['Body'] else {}
+        except json.JSONDecodeError:
+&gt;           pytest.fail(f"Lỗi giải mã JSON trong Body: {test_case.get('Body', '')}")
+E           Failed: Lỗi giải mã JSON trong Body: {"trade_codes": [“NY@2025"]}
+
+tests/test_api.py:56: Failed</failure></testcase><testcase classname="tests.test_api" name="test_api_case[test_case46]" time="0.743" /><testcase classname="tests.test_api" name="test_api_case[test_case47]" time="0.708" /><testcase classname="tests.test_api" name="test_api_case[test_case48]" time="0.706" /><testcase classname="tests.test_api" name="test_api_case[test_case49]" time="0.608" /><testcase classname="tests.test_api" name="test_api_case[test_case50]" time="0.593" /><testcase classname="tests.test_api" name="test_api_case[test_case51]" time="0.599" /><testcase classname="tests.test_api" name="test_api_case[test_case52]" time="0.720" /><testcase classname="tests.test_api" name="test_api_case[test_case53]" time="0.782" /><testcase classname="tests.test_api" name="test_api_case[test_case54]" time="0.804" /><testcase classname="tests.test_api" name="test_api_case[test_case55]" time="0.738" /><testcase classname="tests.test_api" name="test_api_case[test_case56]" time="0.768" /><testcase classname="tests.test_api" name="test_api_case[test_case57]" time="0.611" /><testcase classname="tests.test_api" name="test_api_case[test_case58]" time="0.858" /><testcase classname="tests.test_api" name="test_api_case[test_case59]" time="0.637" /><testcase classname="tests.test_api" name="test_api_case[test_case60]" time="0.720" /><testcase classname="tests.test_api" name="test_api_case[test_case61]" time="0.589" /><testcase classname="tests.test_api" name="test_api_case[test_case62]" time="0.653" /><testcase classname="tests.test_api" name="test_api_case[test_case63]" time="0.765" /><testcase classname="tests.test_api" name="test_api_case[test_case64]" time="0.785" /><testcase classname="tests.test_api" name="test_api_case[test_case65]" time="0.894" /><testcase classname="tests.test_api" name="test_api_case[test_case66]" time="0.702" /><testcase classname="tests.test_api" name="test_api_case[test_case67]" time="0.612" /><testcase classname="tests.test_api" name="test_api_case[test_case68]" time="0.859" /><testcase classname="tests.test_api" name="test_api_case[test_case69]" time="0.681" /><testcase classname="tests.test_api" name="test_api_case[test_case70]" time="0.683" /><testcase classname="tests.test_api" name="test_api_case[test_case71]" time="0.649" /><testcase classname="tests.test_api" name="test_api_case[test_case72]" time="1.202" /><testcase classname="tests.test_api" name="test_api_case[test_case73]" time="0.750" /><testcase classname="tests.test_api" name="test_api_case[test_case74]" time="0.669" /><testcase classname="tests.test_api" name="test_api_case[test_case75]" time="0.798" /><testcase classname="tests.test_api" name="test_api_case[test_case76]" time="0.646" /><testcase classname="tests.test_api" name="test_api_case[test_case77]" time="0.642" /><testcase classname="tests.test_api" name="test_api_case[test_case78]" time="0.742" /><testcase classname="tests.test_api" name="test_api_case[test_case79]" time="0.677" /><testcase classname="tests.test_api" name="test_api_case[test_case80]" time="0.701" /><testcase classname="tests.test_api" name="test_api_case[test_case81]" time="0.702" /><testcase classname="tests.test_api" name="test_api_case[test_case82]" time="0.816" /><testcase classname="tests.test_api" name="test_api_case[test_case83]" time="0.751" /><testcase classname="tests.test_api" name="test_api_case[test_case84]" time="0.682" /><testcase classname="tests.test_api" name="test_api_case[test_case85]" time="0.711" /><testcase classname="tests.test_api" name="test_api_case[test_case86]" time="0.750" /><testcase classname="tests.test_api" name="test_api_case[test_case87]" time="0.899" /><testcase classname="tests.test_api" name="test_api_case[test_case88]" time="0.706" /><testcase classname="tests.test_api" name="test_api_case[test_case89]" time="0.750" /><testcase classname="tests.test_api" name="test_api_case[test_case90]" time="0.667" /><testcase classname="tests.test_api" name="test_api_case[test_case91]" time="0.699" /><testcase classname="tests.test_api" name="test_api_case[test_case92]" time="0.648" /><testcase classname="tests.test_api" name="test_api_case[test_case93]" time="0.713" /><testcase classname="tests.test_api" name="test_api_case[test_case94]" time="0.612" /><testcase classname="tests.test_api" name="test_api_case[test_case95]" time="0.712" /><testcase classname="tests.test_api" name="test_api_case[test_case96]" time="0.704" /><testcase classname="tests.test_api" name="test_api_case[test_case97]" time="0.664" /><testcase classname="tests.test_api" name="test_api_case[test_case98]" time="1.056" /><testcase classname="tests.test_api" name="test_api_case[test_case99]" time="0.851" /><testcase classname="tests.test_api" name="test_api_case[test_case100]" time="0.662" /><testcase classname="tests.test_api" name="test_api_case[test_case101]" time="0.727" /><testcase classname="tests.test_api" name="test_api_case[test_case102]" time="0.718" /><testcase classname="tests.test_api" name="test_api_case[test_case103]" time="0.598" /><testcase classname="tests.test_api" name="test_api_case[test_case104]" time="0.859" /><testcase classname="tests.test_test_untils" name="test_load_config" time="0.001" /><testcase classname="tests.test_test_untils" name="test_parse_json_string" time="0.001" /><testcase classname="tests.test_test_untils" name="test_compare_response" time="0.146" /></testsuite></testsuites>
