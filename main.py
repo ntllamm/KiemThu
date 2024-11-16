@@ -18,7 +18,14 @@ def main():
     # Run tests with pytest and generate reports
     try:
         # Chạy pytest và tạo báo cáo XML và HTML
-        pytest.main(["tests/", "--junitxml=reports/test_report.xml", "--html=reports/test_report.html"])
+        import pytest
+
+
+        pytest.main([
+            "tests/",
+            "--junitxml=reports/test_report.xml",
+            "--html=reports/test_report.html",
+            "--self-contained-html","--css=reports/assets/style.css"])
         print("Kiểm thử API hoàn tất và báo cáo đã được tạo.")
     except Exception as e:
         print(f"Lỗi khi thực hiện kiểm thử hoặc tạo báo cáo: {e}")

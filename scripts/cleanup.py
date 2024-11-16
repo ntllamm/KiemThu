@@ -7,7 +7,7 @@ def cleanup_reports(report_dir='reports'):
     Xóa tất cả các file báo cáo có đuôi mở rộng như .json, .xml, .png, .html, .xlsx trong thư mục chỉ định,
     ngoại trừ file template_report.html.
     """
-    file_patterns = ['*.json', '*.xml', '*.png', '*.html', '*.xlsx']
+    file_patterns = ['*.json', '*.xml', '*.png', '*.html']
     
     for pattern in file_patterns:
         files = glob.glob(os.path.join(report_dir, pattern))

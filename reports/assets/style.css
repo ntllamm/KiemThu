@@ -22,7 +22,7 @@ p {
 }
 
 a {
-  color: #999;
+  color: black;
 }
 
 table {
@@ -34,7 +34,7 @@ table {
  ******************************/
 #environment td {
   padding: 5px;
-  border: 1px solid #cccccc;
+  border: 1px solid #e6e6e6;
   vertical-align: top;
 }
 #environment tr:nth-child(odd) {

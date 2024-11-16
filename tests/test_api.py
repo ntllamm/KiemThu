@@ -3,6 +3,10 @@ import requests
 import json
 import pandas as pd
 import pytest
+import matplotlib.pyplot as plt
+from datetime import datetime
+from openpyxl import load_workbook
+from openpyxl.drawing.image import Image
 
 # Danh sách toàn cục để lưu kết quả các test case
 results = []
@@ -34,15 +38,18 @@ def load_test_cases(test_cases_file):
         test_cases = list(reader)
     return test_cases
 
+@pytest.fixture(scope="session")
+def token():
+    return get_login_token()
+
 # Hàm kiểm thử với pytest
 @pytest.mark.parametrize("test_case", load_test_cases("data/test_cases.csv"))
-def test_api_case(test_case):
-    token = get_login_token()  # Lấy token từ API đăng nhập
+def test_api_case(test_case, token):
     assert token, "Không lấy được token, dừng quá trình kiểm thử."
 
     url = test_case['URL']
     
-    # Parse headers và thêm Authorization từ cột `Authorization`
+    # Parse headers và thêm Authorization từ cột Authorization
     try:
         headers = json.loads(test_case['Headers']) if test_case['Headers'] else {}
         headers["Authorization"] = test_case['Authorization'].replace("Bearer your_token_here", f"{token}")
@@ -77,32 +84,74 @@ def test_api_case(test_case):
     actual_status = response.status_code
     actual_body = response.json() if response.headers.get("Content-Type") == "application/json" else response.text
 
-    # So sánh kết quả và lưu vào danh sách
-    pass_fail = "Pass" if actual_status == expected_status and str(actual_body) == expected_result else "Fail"
+      #  Sử dụng try-except cho ghi nhận kết quả, đồng thời cho phép pytest xử lý assert để tạo báo cáo HTML chính xác
+    pass_fail = "Pass"
+    error_message = ""
+    try:
+        assert actual_status == expected_status, f"Lỗi: Mã trạng thái thực tế ({actual_status}) không khớp với mong đợi ({expected_status})"
+    except AssertionError as e:
+        pass_fail = "Fail"
+        error_message = str(e)
+    # Thêm vào danh sách kết quả để ghi vào Excel
     results.append({
         "Test Case ID": test_case['Test Case ID'],
         "Expected Status": expected_status,
         "Expected Result": expected_result,
         "Actual Status": actual_status,
         "Actual Result": actual_body,
-        "Result": pass_fail
+        "Result": pass_fail,
+        "Error Message": error_message
     })
-
-# Hàm ghi kết quả vào file Excel
+     # Dùng pytest.fail để đảm bảo báo cáo HTML ghi nhận các test case fail
+    if pass_fail == "Fail":
+        pytest.fail(error_message)
+@pytest.fixture(scope="session", autouse=True)
+def record_start_time():
+    global start_time
+    start_time = datetime.now()  # Lưu thời gian bắt đầu
+    print(f"Thời gian bắt đầu kiểm thử: {start_time}")
+# Hàm ghi kết quả vào file Excel với 2 sheet
 def update_results_excel(results_file_path):
-    df = pd.DataFrame(results)
-    df.to_excel(results_file_path, index=False, engine='openpyxl')
-    print(f"Kết quả đã được ghi vào {results_file_path}")
+    # Ghi chi tiết test case vào sheet "Kết quả kiểm thử"
+    results_df = pd.DataFrame(results)
+
+    # Tạo dữ liệu cho sheet "Tổng quan"
+    total_tests = len(results)
+    passed_tests = sum(1 for r in results if r["Result"] == "Pass")
+    failed_tests = total_tests - passed_tests
+    global start_time
+    end_time = datetime.now()
+    overview_data = {
+        "Tổng số Test Case": [total_tests],
+        "Số Test Case Pass": [passed_tests],
+        "Số Test Case Fail": [failed_tests],
+         "Thời gian bắt đầu": [start_time.strftime("%Y-%m-%d %H:%M:%S")],
+        "Thời gian kết thúc": [end_time.strftime("%Y-%m-%d %H:%M:%S")]
+    }
+    overview_df = pd.DataFrame(overview_data)
+
+    # Tạo biểu đồ Pass/Fail
+    plt.figure(figsize=(6, 4))
+    plt.bar(["Pass", "Fail"], [passed_tests, failed_tests], color=["green", "red"])
+    plt.title("Tỷ lệ Pass/Fail")
+    plt.ylabel("Số lượng Test Case")
+    plt.savefig("reports/pass_fail_chart.png")  # Lưu biểu đồ dưới dạng ảnh
+
+    # Ghi dữ liệu vào Excel với nhiều sheet
+    with pd.ExcelWriter(results_file_path, engine="openpyxl") as writer:
+        results_df.to_excel(writer, sheet_name="Kết quả kiểm thử", index=False)
+        overview_df.to_excel(writer, sheet_name="Tổng quan", index=False)
+
+    # Chèn biểu đồ vào sheet "Tổng quan"
+    workbook = load_workbook(results_file_path)
+    worksheet = workbook["Tổng quan"]
+    img = Image("reports/pass_fail_chart.png")
+    worksheet.add_image(img, "B5")  # Chèn biểu đồ tại ô B5
+    workbook.save(results_file_path)
+    print(f"Kết quả đã được ghi vào file: {results_file_path}")
 
 # Hàm pytest fixture để lưu kết quả sau khi toàn bộ kiểm thử hoàn tất
 @pytest.fixture(scope="session", autouse=True)
 def write_results_to_excel():
     yield  # Đợi cho đến khi tất cả kiểm thử hoàn thành
     update_results_excel("reports/test_results.xlsx")  # Ghi kết quả vào file Excel
-
-# Hàm pytest fixture để lưu kết quả sau khi toàn bộ kiểm thử hoàn tất
-@pytest.fixture(scope="session", autouse=True)
-def write_results_to_excel():
-    yield  # Đợi cho đến khi tất cả kiểm thử hoàn thành
-    update_results_excel("reports/test_results.xlsx")  # Ghi kết quả vào file Excel
-
